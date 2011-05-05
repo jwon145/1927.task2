@@ -2,12 +2,13 @@ CC      = colorgcc
 CFLAGS  = -Wall -Werror
 OBJS    = main.o dictionary.o
 TARGET  = dict
+DEBUG   = -g -fmudflap -lmudflap
 
 %.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(DEBUG)
 
-textbuffer: $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
+dict: $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS) $(DEBUG)
 	
 clean:
 	rm -f $(OBJS) $(TARGET) core
