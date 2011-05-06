@@ -16,7 +16,8 @@ void initDict() {/*{{{*/
 
 void insertWordDict(char *word) {/*{{{*/
     dictLink curr;
-    char letter = *(word++);
+    int i = 0;
+    char letter = *(word + i++);
 
     if (root == NULL) {
         root = addLetter(letter);
@@ -25,14 +26,16 @@ void insertWordDict(char *word) {/*{{{*/
         curr = ptrToSibling(curr, letter);
     }
 
-    while (curr != NULL && (letter = *(word++)) != '\0') {
+    while (curr != NULL && (letter = *(word + i)) != '\0' && i < WORDMAX) {
         if (curr->child == NULL) {
             curr->child = addLetter(letter);
             curr = curr->child;
         } else {
             curr = ptrToSibling(curr->child, letter);
         }
+        i++;
     }
+    printAll(root);
 }/*}}}*/
 
 void insertWordsDict(wordList words);
@@ -43,7 +46,9 @@ wordList completionsDict(char *word);
 
 void releaseDict();
 
-dictLink getRootDict(); 
+dictLink getRootDict() {/*{{{*/
+    return root;
+}/*}}}*/
 
 // helper functions
 
