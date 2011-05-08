@@ -41,7 +41,12 @@ void insertWordDict(char *word) {/*{{{*/
     curr->isTerminal = True;
 }/*}}}*/
 
-void insertWordsDict(wordList words);
+void insertWordsDict(wordList words) {/*{{{*/
+    while (words != NULL) {
+        insertWordDict(words->word);
+        words = words->next;
+    }
+}/*}}}*/
 
 bool lookupDict(char *word) {/*{{{*/
     dictLink curr;
@@ -78,9 +83,9 @@ bool lookupDict(char *word) {/*{{{*/
 
 wordList completionsDict(char *word);
 
-void releaseDict() {
+void releaseDict() {/*{{{*/
     freeDict(root);
-}
+}/*}}}*/
 
 dictLink getRootDict() {/*{{{*/
     return root;
