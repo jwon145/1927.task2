@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "dictionary.h"
 #include "dictionary_type.h"
 
@@ -24,7 +25,7 @@ void insertWordDict(char *word) {/*{{{*/
         root = addLetter(letter);
         curr = root;
     } else {
-        curr = ptrToSibling(curr, letter);
+        curr = ptrToSibling(root, letter);
     }
 
     while (curr != NULL && (letter = *(word + i)) != '\0' && i < WORDMAX) {
@@ -37,33 +38,31 @@ void insertWordDict(char *word) {/*{{{*/
         i++;
     }
     curr->isTerminal = True;
-
-    printAll(root);
 }/*}}}*/
 
 void insertWordsDict(wordList words);
 
 bool lookupDict(char *word) {/*{{{*/
-    dictLink curr;
+    dictLink curr = root;
     int i = 0;
     char letter = *(word + i++);
 
-    if (root == NULL) {
-        return True;
+    if (curr == NULL) {
+        return False;        // exits here
     } else {
         curr = getSibling(curr, letter);
         if (curr == NULL) {
-            return True;        // exits here
+            return False;
         }
     }
 
     while (curr != NULL && (letter = *(word + i)) != '\0') {
         if (curr->child == NULL) {
-            return True;
+            return False;
         } else {
             curr = getSibling(curr->child, letter);
             if (curr == NULL) {
-                return True;
+                return False;
             }
         }
         i++;
@@ -72,7 +71,7 @@ bool lookupDict(char *word) {/*{{{*/
     if (curr->isTerminal == True) {
         return True;
     }
-    return True;
+    return False;
 }/*}}}*/
 
 wordList completionsDict(char *word);
@@ -97,11 +96,11 @@ dictLink addLetter(char letter) {/*{{{*/
 }/*}}}*/
 
 dictLink ptrToSibling(dictLink currSibling, char letter) {/*{{{*/
-    if (currSibling->thisChar == letter) {
+    if (currSibling != NULL && currSibling->thisChar == letter) {
         return currSibling;
     }
     while (currSibling->sibling != NULL) {
-        if (currSibling->thisChar == letter) {
+        if (currSibling->sibling->thisChar == letter) {
             return currSibling->sibling;
         }
         currSibling = currSibling->sibling;
@@ -111,11 +110,11 @@ dictLink ptrToSibling(dictLink currSibling, char letter) {/*{{{*/
 }/*}}}*/
 
 dictLink getSibling(dictLink currSibling, char letter) {/*{{{*/
-    if (currSibling->thisChar == letter) {
+    if (currSibling != NULL && currSibling->thisChar == letter) {
         return currSibling;
     }
     while (currSibling->sibling != NULL) {
-        if (currSibling->thisChar == letter) {
+        if (currSibling->sibling->thisChar == letter) {
             return currSibling->sibling;
         }
         currSibling = currSibling->sibling;
@@ -125,6 +124,8 @@ dictLink getSibling(dictLink currSibling, char letter) {/*{{{*/
 
 void printAll(dictLink curr) {/*{{{*/
     if (curr != NULL) {
+        if (curr->isTerminal) putchar('*');
+        else putchar(' ');
         printf("%c\n", curr->thisChar);
         printAll(curr->child);
         printAll(curr->sibling);
