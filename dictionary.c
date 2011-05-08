@@ -9,6 +9,7 @@ dictLink addLetter(char letter);
 dictLink ptrToSibling(dictLink currSibling, char letter);
 dictLink getSibling(dictLink currSibling, char letter);
 void printAll(dictLink curr);
+void freeDict(dictLink curr);
 
 static dictLink root;
 
@@ -43,14 +44,14 @@ void insertWordDict(char *word) {/*{{{*/
 void insertWordsDict(wordList words);
 
 bool lookupDict(char *word) {/*{{{*/
-    dictLink curr = root;
+    dictLink curr;
     int i = 0;
     char letter = *(word + i++);
 
-    if (curr == NULL) {
-        return False;        // exits here
+    if (root == NULL) {
+        return False;
     } else {
-        curr = getSibling(curr, letter);
+        curr = getSibling(root, letter);
         if (curr == NULL) {
             return False;
         }
@@ -70,13 +71,16 @@ bool lookupDict(char *word) {/*{{{*/
 
     if (curr->isTerminal == True) {
         return True;
+    } else {
+        return False;
     }
-    return False;
 }/*}}}*/
 
 wordList completionsDict(char *word);
 
-void releaseDict();
+void releaseDict() {
+    freeDict(root);
+}
 
 dictLink getRootDict() {/*{{{*/
     return root;
@@ -132,3 +136,10 @@ void printAll(dictLink curr) {/*{{{*/
     }
 }/*}}}*/
 
+void freeDict(dictLink curr) {/*{{{*/
+    if (curr != NULL) {
+        freeDict(curr->child);
+        freeDict(curr->sibling);
+        free(curr);
+    }
+}/*}}}*/
