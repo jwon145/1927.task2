@@ -8,10 +8,14 @@
 dictLink addLetter(char letter);
 dictLink ptrToSibling(dictLink currSibling, char letter);
 dictLink getSibling(dictLink currSibling, char letter);
+void freeWordList();
+void getWordsDict(dictLink curr, char *prefix);
 void printAll(dictLink curr);
 void freeDict(dictLink curr);
 
 static dictLink root;
+static wordList tempWLhead;
+static wordList tempWLtail;
 
 void initDict() {/*{{{*/
     root = NULL;
@@ -81,7 +85,12 @@ bool lookupDict(char *word) {/*{{{*/
     }
 }/*}}}*/
 
-wordList completionsDict(char *word);
+wordList completionsDict(char *word) {
+    // go through tree until end of word
+    // call helper function with end of word as the root
+    freeWordList();
+    getWordsDict(root, word);
+}
 
 void releaseDict() {/*{{{*/
     freeDict(root);
@@ -129,6 +138,28 @@ dictLink getSibling(dictLink currSibling, char letter) {/*{{{*/
         currSibling = currSibling->sibling;
     }
     return NULL;
+}/*}}}*/
+
+void freeWordList() {/*{{{*/
+    if (tempWL == NULL) {
+        return;
+    }
+
+    wordList curr = tempWL;
+    wordList prev;
+    while (curr != NULL) {
+        free(curr->word);
+        prev = curr;
+        curr = curr->next;
+        free(prev);
+    }
+}/*}}}*/
+
+void getWordsDict(dictLink curr, char *prefix) {/*{{{*/
+// if isTerminal, add word
+// realloc memcpy
+    char *newPrefix = malloc((strlen(prefix) + 2) * sizeof(char));
+    strncpy(prefix, newPrefix);
 }/*}}}*/
 
 void printAll(dictLink curr) {/*{{{*/
