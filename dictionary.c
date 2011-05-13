@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "dictionary.h"
 #include "dictionary_type.h"
@@ -8,8 +9,8 @@
 dictLink addLetter(char letter);
 dictLink ptrToSibling(dictLink currSibling, char letter);
 dictLink getSibling(dictLink currSibling, char letter);
-void freeWordList();
 void getWordsDict(dictLink curr, char *prefix);
+void addToWordList(char *word);
 void printAll(dictLink curr);
 void freeDict(dictLink curr);
 
@@ -85,12 +86,16 @@ bool lookupDict(char *word) {/*{{{*/
     }
 }/*}}}*/
 
-wordList completionsDict(char *word) {
+wordList completionsDict(char *word) {/*{{{*/
     // go through tree until end of word
     // call helper function with end of word as the root
-    freeWordList();
     getWordsDict(root, word);
-}
+    wordList list = tempWLhead;
+    tempWLhead = NULL;
+    tempWLtail = NULL;
+
+    return list;
+}/*}}}*/
 
 void releaseDict() {/*{{{*/
     freeDict(root);
@@ -140,26 +145,31 @@ dictLink getSibling(dictLink currSibling, char letter) {/*{{{*/
     return NULL;
 }/*}}}*/
 
-void freeWordList() {/*{{{*/
-    if (tempWL == NULL) {
-        return;
-    }
-
-    wordList curr = tempWL;
-    wordList prev;
-    while (curr != NULL) {
-        free(curr->word);
-        prev = curr;
-        curr = curr->next;
-        free(prev);
+void getWordsDict(dictLink curr, char *prefix) {/*{{{*/
+    if (curr != NULL) {
+        char *newPrefix = malloc((strlen(prefix) + 2) * sizeof(char));
+        strcpy(newPrefix, prefix);
+        char temp[] = { curr->thisChar, '\0' };
+        strcat(newPrefix, temp);
+        if (curr->isTerminal == True) {
+            addToWordList(newPrefix);
+        }
+        getWordsDict(curr->child, newPrefix);
+        getWordsDict(curr->sibling, prefix);
     }
 }/*}}}*/
 
-void getWordsDict(dictLink curr, char *prefix) {/*{{{*/
-// if isTerminal, add word
-// realloc memcpy
-    char *newPrefix = malloc((strlen(prefix) + 2) * sizeof(char));
-    strncpy(prefix, newPrefix);
+void addToWordList(char *word) {/*{{{*/
+    if (tempWLhead == NULL) {
+        tempWLhead = malloc(sizeof(struct wlnode));
+        tempWLhead->word = malloc((strlen(word) + 1) * sizeof(char));
+        strcpy(tempWLhead->word, word);
+    } else {
+        tempWLtail = malloc(sizeof(struct wlnode));
+        tempWLtail->next->word = malloc((strlen(word) + 1) * sizeof(char));
+        strcpy(tempWLtail->next->word, word);
+        tempWLtail = tempWLtail->next;
+    }
 }/*}}}*/
 
 void printAll(dictLink curr) {/*{{{*/
