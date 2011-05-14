@@ -11,7 +11,6 @@ dictLink ptrToSibling(dictLink currSibling, char letter); // search siblings for
 dictLink getSibling(dictLink currSibling, char letter); // only searches if sibling exists
 void getWordsDict(dictLink curr, char *prefix); // recursively goes through subtree w/ prefix root, adding words
 void addToWordList(char *word); // called by getWordsDict to add words to a static temp list
-void printAll(dictLink curr); // temporary printing function that prints tree preorder
 void freeDict(dictLink curr); // called by releaseDict to recursively free
 
 static dictLink root;
@@ -87,9 +86,40 @@ bool lookupDict(char *word) {/*{{{*/
 }/*}}}*/
 
 wordList completionsDict(char *word) {/*{{{*/
-    // go through tree until end of word
-    // call helper function with end of word as the root
-    getWordsDict(root, word);
+    dictLink curr;
+    int i = 0;
+    char letter = *(word + i++);
+
+    if (letter != '\0') {
+        if (root == NULL) {
+            return NULL;
+        } else {
+            curr = getSibling(root, letter);
+            if (curr == NULL) {
+                return NULL;
+            }
+        }
+
+        while (curr != NULL && (letter = *(word + i)) != '\0' && i < WORDMAX) {
+            if (curr->child == NULL) {
+                return NULL;
+            } else {
+                curr = getSibling(curr->child, letter);
+                if (curr == NULL) {
+                    return NULL;
+                }
+            }
+            i++;
+        }
+        if (curr->isTerminal == True) {
+            addToWordList(word);
+        }
+
+        curr = curr->child;
+    } else {
+        curr = root;
+    }
+    getWordsDict(curr, word);
     wordList list = tempWLhead;
     tempWLhead = NULL;
     tempWLtail = NULL;
@@ -155,6 +185,7 @@ void getWordsDict(dictLink curr, char *prefix) {/*{{{*/
             addToWordList(newPrefix);
         }
         getWordsDict(curr->child, newPrefix);
+        free(newPrefix);
         getWordsDict(curr->sibling, prefix);
     }
 }/*}}}*/
@@ -164,21 +195,12 @@ void addToWordList(char *word) {/*{{{*/
         tempWLhead = malloc(sizeof(struct wlnode));
         tempWLhead->word = malloc((strlen(word) + 1) * sizeof(char));
         strcpy(tempWLhead->word, word);
+        tempWLtail = tempWLhead;
     } else {
-        tempWLtail = malloc(sizeof(struct wlnode));
+        tempWLtail->next = malloc(sizeof(struct wlnode));
         tempWLtail->next->word = malloc((strlen(word) + 1) * sizeof(char));
         strcpy(tempWLtail->next->word, word);
         tempWLtail = tempWLtail->next;
-    }
-}/*}}}*/
-
-void printAll(dictLink curr) {/*{{{*/
-    if (curr != NULL) {
-        if (curr->isTerminal) putchar('*');
-        else putchar(' ');
-        printf("%c\n", curr->thisChar);
-        printAll(curr->child);
-        printAll(curr->sibling);
     }
 }/*}}}*/
 
