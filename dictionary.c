@@ -6,17 +6,17 @@
 #include "dictionary_type.h"
 
 // helper function prototypes
-dictLink addLetter(char letter);
-dictLink ptrToSibling(dictLink currSibling, char letter);
-dictLink getSibling(dictLink currSibling, char letter);
-void getWordsDict(dictLink curr, char *prefix);
-void addToWordList(char *word);
-void printAll(dictLink curr);
-void freeDict(dictLink curr);
+dictLink addLetter(char letter);        // returns a dictLink with letter in it
+dictLink ptrToSibling(dictLink currSibling, char letter); // search siblings for letter, makes new sibling if !exist
+dictLink getSibling(dictLink currSibling, char letter); // only searches if sibling exists
+void getWordsDict(dictLink curr, char *prefix); // recursively goes through subtree w/ prefix root, adding words
+void addToWordList(char *word); // called by getWordsDict to add words to a static temp list
+void printAll(dictLink curr); // temporary printing function that prints tree preorder
+void freeDict(dictLink curr); // called by releaseDict to recursively free
 
 static dictLink root;
-static wordList tempWLhead;
-static wordList tempWLtail;
+static wordList tempWLhead; // temporary; I don't want to pass a list through a recursive function just to add to it
+static wordList tempWLtail; // see ^
 
 void initDict() {/*{{{*/
     root = NULL;

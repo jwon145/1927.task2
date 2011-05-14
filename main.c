@@ -14,7 +14,13 @@ int main(int argc, char *argv[])
     } else {
         printf("True\n");
     }
-    
+    wordList newWL = completionsDict("");
+    wordList currWL = newWL;
+    while (currWL != NULL) {
+        printf("%s\n", currWL->word);
+        currWL = currWL->next;
+    }
+    releaseDict();
 
     return 0;
 }
