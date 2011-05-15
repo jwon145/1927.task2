@@ -194,6 +194,7 @@ void addToWordList(char *word) {/*{{{*/
     if (tempWLhead == NULL) {
         tempWLhead = malloc(sizeof(struct wlnode));
         tempWLhead->word = malloc((strlen(word) + 1) * sizeof(char));
+        tempWLhead->next = NULL;
         strcpy(tempWLhead->word, word);
         tempWLtail = tempWLhead;
     } else {
@@ -201,6 +202,7 @@ void addToWordList(char *word) {/*{{{*/
         tempWLtail->next->word = malloc((strlen(word) + 1) * sizeof(char));
         strcpy(tempWLtail->next->word, word);
         tempWLtail = tempWLtail->next;
+        tempWLtail->next = NULL;
     }
 }/*}}}*/
 
